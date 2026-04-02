@@ -72,21 +72,23 @@ Update all templates in one call: `PUT /vendor/v3/app/<appId>/enterprise-portal/
 
 ## Template Variable Reference
 
-Variables available in each template (confirmed from live templates):
+Variables available in each template (sourced from Replicated source code, not from template body inspection):
+
+> **Warning:** Do not derive available variables by inspecting your own template bodies — you may have used invented variables that produce empty strings. Always refer to this table or the Replicated source.
 
 | Template | Variables |
 |---|---|
-| `userCreated` | `{{app_name}}` `{{portal_url}}` |
+| `userCreated` | `{{app_name}}` `{{team_name}}` `{{user_email}}` `{{team_settings_url}}` |
 | `userInvitation` | `{{app_name}}` `{{invite_url}}` `{{customer_name}}` `{{team_name}}` `{{app_url}}` `{{invite_nonce}}` |
 | `temporaryLoginLink` | `{{app_name}}` `{{login_url}}` `{{verification_code}}` `{{team_name}}` |
-| `trialSignupVerification` | `{{app_name}}` `{{verification_code}}` `{{login_url}}` `{{general_login_url}}` |
+| `trialSignupVerification` | `{{app_name}}` `{{verification_code}}` `{{login_url}}` `{{general_login_url}}` `{{team_name}}` |
 | `trialExistingCustomer` | `{{app_name}}` `{{login_url}}` `{{team_name}}` |
 | `accessDenied` | `{{app_name}}` `{{team_name}}` |
 | `userJoinedTeam` | `{{app_name}}` `{{login_url}}` `{{team_name}}` `{{customer_name}}` |
 | `versionUpdateAvailable` | `{{app_name}}` `{{version_label}}` `{{update_url}}` `{{release_notes_url}}` `{{release_notes}}` `{{team_name}}` `{{customer_name}}` |
-| `newInstance` | `{{app_name}}` `{{instance_name}}` `{{version}}` `{{portal_url}}` |
-| `instanceDowntime` | `{{app_name}}` `{{instance_name}}` `{{last_seen}}` `{{portal_url}}` |
-| `licenseExpiration` | `{{app_name}}` `{{instance_name}}` `{{expiration_date}}` `{{portal_url}}` |
+| `newInstance` | `{{app_name}}` `{{instance_name}}` `{{instance_url}}` |
+| `instanceDowntime` | `{{app_name}}` `{{instance_name}}` `{{instance_url}}` |
+| `licenseExpiration` | `{{app_name}}` `{{instance_name}}` `{{days_until_expiration}}` `{{account_manager_email}}` |
 
 ---
 
