@@ -36,11 +36,12 @@ encoded = base64.b64encode(json.dumps(branding).encode()).decode()
 
 ## Customer-Facing Email Templates
 
-These 11 templates are emails sent from the Enterprise Portal **to your customers**:
+These templates are emails sent from the Enterprise Portal **to your customers**. The vendor portal UI exposes **7 configurable templates**. The API returns 11 (including `userCreated`, `newInstance`, `instanceDowntime`, `licenseExpiration`) but those 4 are hidden/unsupported in the current UI and should not be relied on.
+
+**The 7 supported templates:**
 
 | Template ID | When It's Sent | Purpose |
 |---|---|---|
-| `userCreated` | Account provisioned | Welcome email with portal link |
 | `userInvitation` | Admin invites a user | Invite link for new portal user |
 | `temporaryLoginLink` | User requests login | Magic login link + verification code |
 | `trialSignupVerification` | Self-serve trial signup | Email verification with code + login link |
@@ -48,9 +49,6 @@ These 11 templates are emails sent from the Enterprise Portal **to your customer
 | `accessDenied` | Login attempted, no account | "No account found" message |
 | `userJoinedTeam` | User joins a team | Notification to team |
 | `versionUpdateAvailable` | New version released to channel | Customer notified of available upgrade |
-| `newInstance` | New instance checks in | Customer notified their instance came online |
-| `instanceDowntime` | Instance stops reporting | Customer notified of potential downtime |
-| `licenseExpiration` | License nearing expiry | Customer warned to renew |
 
 Update all templates in one call: `PUT /vendor/v3/app/<appId>/enterprise-portal/email-templates`
 
@@ -76,19 +74,17 @@ Variables available in each template (sourced from Replicated source code, not f
 
 > **Warning:** Do not derive available variables by inspecting your own template bodies — you may have used invented variables that produce empty strings. Always refer to this table or the Replicated source.
 
+**Supported templates only** (variables confirmed from vendor portal UI):
+
 | Template | Variables |
 |---|---|
-| `userCreated` | `{{app_name}}` `{{team_name}}` `{{user_email}}` `{{team_settings_url}}` |
-| `userInvitation` | `{{app_name}}` `{{invite_url}}` `{{customer_name}}` `{{team_name}}` `{{app_url}}` `{{invite_nonce}}` |
+| `userInvitation` | `{{app_name}}` `{{invite_url}}` `{{team_name}}` `{{app_url}}` `{{invite_nonce}}` `{{customer_name}}` |
 | `temporaryLoginLink` | `{{app_name}}` `{{login_url}}` `{{verification_code}}` `{{team_name}}` |
 | `trialSignupVerification` | `{{app_name}}` `{{verification_code}}` `{{login_url}}` `{{general_login_url}}` `{{team_name}}` |
 | `trialExistingCustomer` | `{{app_name}}` `{{login_url}}` `{{team_name}}` |
 | `accessDenied` | `{{app_name}}` `{{team_name}}` |
 | `userJoinedTeam` | `{{app_name}}` `{{login_url}}` `{{team_name}}` `{{customer_name}}` |
 | `versionUpdateAvailable` | `{{app_name}}` `{{version_label}}` `{{update_url}}` `{{release_notes_url}}` `{{release_notes}}` `{{team_name}}` `{{customer_name}}` |
-| `newInstance` | `{{app_name}}` `{{instance_name}}` `{{instance_url}}` |
-| `instanceDowntime` | `{{app_name}}` `{{instance_name}}` `{{instance_url}}` |
-| `licenseExpiration` | `{{app_name}}` `{{instance_name}}` `{{days_until_expiration}}` `{{account_manager_email}}` |
 
 ---
 
