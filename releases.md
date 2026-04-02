@@ -64,15 +64,27 @@ spec:
 
 ## OCI Registry Propagation
 
-After `release create`, the OCI tag at `registry.replicated.com` may not update instantly. This is a server-side indexing delay, not a client-side packaging issue. Poll before testing:
+After `release create`, the OCI tag at `registry.replicated.com` may not update instantly. This is a server-side indexing delay, not a client-side packaging issue. In CI, poll the channel version before attempting to install:
 
 ```bash
-while true; do
-  VER=$(helm show chart oci://registry.replicated.com/my-app/unstable/my-chart 2>/dev/null | grep '^version:' | awk '{print $2}')
-  echo "$VER"
-  [ "$VER" = "X.Y.Z" ] && break
+# In CI, after release create, poll until the channel serves the new version
+for i in $(seq 1 24); do
+  CHART_VER=$(helm show chart oci://registry.replicated.com/my-app/unstable/my-chart 2>/dev/null | grep '^version:' | awk '{print $2}')
+  echo "[$i/24] channel serving: $CHART_VER"
+  [ "$CHART_VER" = "$VERSION" ] && echo "Ready." && break
   sleep 5
 done
+# Fail if still not propagated after 2 minutes
+[ "$CHART_VER" = "$VERSION" ] || (echo "FAIL: OCI not propagated after 2min" && exit 1)
+```
+
+When installing in smoke tests, omit `--version` and pull whatever the channel currently serves — the poll above ensures it's the right version:
+
+```bash
+helm install my-app oci://registry.replicated.com/my-app/unstable/my-chart \
+  --set "replicated.license=${LICENSE}" \
+  --wait --timeout 5m
+# No --version flag needed after polling confirms the channel is current
 ```
 
 ## CI Automation Pattern
