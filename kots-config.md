@@ -103,3 +103,18 @@ Without this, the subchart uses its own hardcoded default and fails to authentic
 ## License Type Restriction Gap
 
 RBAC has no sub-permission for license type. `kots/app/*/license/create` is all-or-nothing — you cannot restrict "only create dev licenses" at the RBAC level. This is a known gap.
+## Boolean Config Values Are Strings in Helm Templates
+
+KOTS passes `bool` config values to Helm as the strings `"true"` or `"false"`, not Go booleans. This means any template using `{{- if .Values.someFlag }}` will evaluate the string `"false"` as **truthy** and render the block.
+
+**Symptom:** a resource you expected to be disabled (e.g. an Ingress with `enabled: false`) still renders and may fail validation with an empty host or missing TLS config.
+
+**Fix:** guard with `ne (toString ...)` instead of a bare `if`:
+
+```yaml
+{{- if and .Values.ingress.enabled (ne (toString .Values.ingress.enabled) "false") }}
+```
+
+**Apply this pattern to any Helm template that conditionally renders a resource based on a KOTS bool config item.** The same applies to nested booleans like `ingress.tls.enabled`.
+
+Note: this is the same reason `postgres.embedded` uses `eq (toString .Values.postgres.embedded) "true"` throughout the chart — it was already correct there. New boolean-toggled resources need the same treatment.
