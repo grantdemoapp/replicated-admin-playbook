@@ -61,6 +61,45 @@ This means:
 - Helm chart defaults should be sane for standard k8s installs
 - KOTS Config defaults can override for specific environments (e.g. EC)
 
+## `readonly: true` — Generated Passwords That Must Survive Upgrades
+
+**The failure mode:** `RandomString` in a `default` field regenerates every time KOTS evaluates the config — including on upgrade. If a database was initialized with the first generated password, the second upgrade will write a different value to the Helm secret, breaking the DB connection permanently (the PVC data still expects the original password).
+
+**The fix:** add `readonly: true` to any config item that uses `RandomString` as its default:
+
+```yaml
+- name: postgres_password
+  title: Database Password
+  type: password
+  default: '{{repl RandomString 32}}'
+  readonly: true   # ← critical: generated once on first install, never changed again
+  hidden: true
+```
+
+**When `readonly: true` applies:**
+- Any config item whose value initializes persistent state (database passwords, encryption keys, JWT secrets)
+- Anything where changing the value post-install would break or corrupt the running app
+- `RandomString` defaults are the most common case, but the same applies to any auto-generated default that must be stable
+
+**When it does NOT apply:**
+- User-configurable fields where changing the value is intentional (storage size, hostnames, feature flags)
+- Fields that don't affect persistent state
+
+**Subchart passthrough:** if a subchart (e.g. pgweb) needs the same generated password as the main DB, wire it through the HelmChart CR explicitly:
+
+```yaml
+# manifests/demoapp-helmchart.yaml
+values:
+  pgweb:
+    postgres:
+      password: '{{repl ConfigOption "postgres_password" }}'
+  postgresql:
+    auth:
+      password: '{{repl ConfigOption "postgres_password" }}'
+```
+
+Without this, the subchart uses its own hardcoded default and fails to authenticate against a DB that was initialized with the KOTS-generated password.
+
 ## License Type Restriction Gap
 
 RBAC has no sub-permission for license type. `kots/app/*/license/create` is all-or-nothing — you cannot restrict "only create dev licenses" at the RBAC level. This is a known gap.
