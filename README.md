@@ -18,7 +18,9 @@ This isn't docs — it's the stuff the docs don't tell you, learned the hard way
 | [SDK Integration](./sdk-integration.md) | Correct API usage, field mapping, expiry, instance tracking |
 | [Enterprise Portal](./enterprise-portal.md) | Branding, email templates, template variables |
 | [Instance Tracking](./instance-tracking.md) | How instances are counted, SDK check-ins, stale instances |
-| [Embedded Cluster](./embedded-cluster.md) | EC-specific config, storage classes, NodePort collisions |
+| [Embedded Cluster (v2)](./embedded-cluster.md) | EC v2 config, storage classes, NodePort collisions |
+| [Embedded Cluster v3](./embedded-cluster-v3.md) | EC v3 install flow, CLI changes, proxy domain gotcha, CMX VM testing |
+| [Enterprise Portal v2](./enterprise-portal-v2.md) | Docs repo structure, toc.yaml, Terraform modules, Helm reference, versioning |
 
 ## Philosophy
 
